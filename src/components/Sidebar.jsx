@@ -44,9 +44,9 @@ export default function Sidebar() {
       </div>
 
       <div className="sidebar-footer-card">
-        <p className="sidebar-footer-title">PGABS Verification Portal</p>
+        <p className="sidebar-footer-title">GJPBS Verification Portal</p>
         <p className="sidebar-footer-text">
-          Private access for approved PGABS group companies to manage records and
+          Private access for approved GJPBS group companies to manage records and
           run duplication checks.
         </p>
       </div>

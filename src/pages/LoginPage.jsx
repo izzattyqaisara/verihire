@@ -69,11 +69,11 @@ export default function LoginPage() {
 
         <section className="auth-dashboard-hero">
           <div className="auth-dashboard-copy">
-            <p className="page-kicker">PGABS Private Portal</p>
+            <p className="page-kicker">GJPBS Private Portal</p>
             <h1>Login</h1>
             <p className="page-lead">
               Sign in to access your company workspace, manage employee records,
-              and run duplication checks across participating PGABS companies.
+              and run duplication checks across participating GJPBS companies.
             </p>
           </div>
         </section>
@@ -89,7 +89,7 @@ export default function LoginPage() {
                 <span className="auth-feature-icon blue">✓</span>
                 <div>
                   <strong>Approved company access only</strong>
-                  <p>Only registered PGABS companies can sign in.</p>
+                  <p>Only registered GJPBS companies can sign in.</p>
                 </div>
               </div>
 
@@ -105,7 +105,7 @@ export default function LoginPage() {
                 <span className="auth-feature-icon lilac">PG</span>
                 <div>
                   <strong>Private internal platform</strong>
-                  <p>This system is intended for PGABS network companies only.</p>
+                  <p>This system is intended for GJPBS network companies only.</p>
                 </div>
               </div>
             </div>

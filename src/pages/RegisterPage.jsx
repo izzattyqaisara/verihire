@@ -105,10 +105,10 @@ export default function RegisterPage() {
 
         <section className="auth-dashboard-hero">
           <div className="auth-dashboard-copy">
-            <p className="page-kicker">PGABS Private Portal</p>
+            <p className="page-kicker">GJPBS Private Portal</p>
             <h1>Register</h1>
             <p className="page-lead">
-              Register using your approved PGABS company email to access the private
+              Register using your approved GJPBS company email to access the private
               employee verification platform.
             </p>
           </div>
@@ -125,7 +125,7 @@ export default function RegisterPage() {
                 <span className="auth-feature-icon blue">✓</span>
                 <div>
                   <strong>Approved company email required</strong>
-                  <p>Your email must already exist in the PGABS company list.</p>
+                  <p>Your email must already exist in the GJPBS company list.</p>
                 </div>
               </div>
 
@@ -140,7 +140,7 @@ export default function RegisterPage() {
               <div className="auth-feature-item">
                 <span className="auth-feature-icon lilac">PG</span>
                 <div>
-                  <strong>Private PGABS access</strong>
+                  <strong>Private GJPBS access</strong>
                   <p>This is not open public registration.</p>
                 </div>
               </div>

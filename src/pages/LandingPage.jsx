@@ -50,7 +50,7 @@ export default function LandingPage() {
           <div className="landing-hero-visual">
             <div className="hero-ui-board">
               <div className="hero-floating-badge hero-floating-badge-top">
-                PGABS Private Portal
+                GJPBS Private Portal
               </div>
 
               <div className="hero-ui-main-card">
@@ -107,7 +107,7 @@ export default function LandingPage() {
                 <div className="hero-mini-card trial-card">
                   <small>Access Type</small>
                   <strong>Approved Company</strong>
-                  <span>Restricted to PGABS network</span>
+                  <span>Restricted to GJPBS network</span>
                 </div>
 
                 <div className="hero-mini-card employee-card">
@@ -129,7 +129,7 @@ export default function LandingPage() {
             <span className="landing-section-kicker">Features</span>
             <h2>Everything participating companies need</h2>
             <p>
-              Built for approved PGABS group companies that need a central system
+              Built for approved GJPBS group companies that need a central system
               for verification and employee record management.
             </p>
           </div>
@@ -164,9 +164,9 @@ export default function LandingPage() {
 
             <article className="landing-feature-card soft-lilac">
               <div className="feature-icon-circle lilac">PG</div>
-              <h3>Private PGABS access</h3>
+              <h3>Private GJPBS access</h3>
               <p>
-                Access is restricted to approved companies under the PGABS group
+                Access is restricted to approved companies under the GJPBS group
                 network only.
               </p>
             </article>
@@ -176,7 +176,7 @@ export default function LandingPage() {
         <section className="landing-cta-strip" id="access">
           <div className="landing-cta-strip-inner">
             <p>
-              Access is restricted to approved PGABS companies. Register using your
+              Access is restricted to approved GJPBS companies. Register using your
               approved company email.
             </p>
             <Link to="/register" className="landing-primary-btn">
