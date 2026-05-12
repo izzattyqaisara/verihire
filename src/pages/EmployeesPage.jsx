@@ -3,18 +3,24 @@ import Sidebar from "../components/Sidebar";
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "../lib/supabase";
 
+const emptyForm = {
+  name: "",
+  icNo: "",
+  position: "",
+  project: "",
+  client: "",
+  startDate: "",
+  endDate: "",
+  status: "Active",
+};
+
 export default function EmployeesPage() {
   const { company } = useAuth();
   const [employees, setEmployees] = useState([]);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const [form, setForm] = useState({
-    name: "",
-    icNo: "",
-    position: "",
-    startDate: "",
-    status: "Active",
-  });
+  const [editingId, setEditingId] = useState(null);
+  const [form, setForm] = useState(emptyForm);
 
   async function loadEmployees() {
     if (!company?.id) return;
@@ -25,9 +31,12 @@ export default function EmployeesPage() {
       .eq("company_id", company.id)
       .order("created_at", { ascending: false });
 
-    if (!error) {
-      setEmployees(data || []);
+    if (error) {
+      setMessage(error.message);
+      return;
     }
+
+    setEmployees(data || []);
   }
 
   useEffect(() => {
@@ -36,6 +45,28 @@ export default function EmployeesPage() {
 
   function handleChange(field, value) {
     setForm((prev) => ({ ...prev, [field]: value }));
+  }
+
+  function handleEdit(employee) {
+    setEditingId(employee.id);
+    setForm({
+      name: employee.name || "",
+      icNo: employee.ic_no || "",
+      position: employee.position || "",
+      project: employee.project || "",
+      client: employee.client || "",
+      startDate: employee.start_date || "",
+      endDate: employee.end_date || "",
+      status: employee.status || "Active",
+    });
+    setMessage("");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function handleCancelEdit() {
+    setEditingId(null);
+    setForm(emptyForm);
+    setMessage("");
   }
 
   async function handleSubmit(e) {
@@ -49,31 +80,49 @@ export default function EmployeesPage() {
         return;
       }
 
-      const { error } = await supabase.from("employees").insert([
-        {
-          company_id: company.id,
-          name: form.name.trim(),
-          ic_no: form.icNo.trim(),
-          position: form.position.trim(),
-          start_date: form.startDate,
-          status: form.status,
-        },
-      ]);
-
-      if (error) {
-        setMessage(error.message);
+      if (new Date(form.startDate) > new Date(form.endDate)) {
+        setMessage("End Date must be later than or equal to Start Date.");
         return;
       }
 
-      setForm({
-        name: "",
-        icNo: "",
-        position: "",
-        startDate: "",
-        status: "Active",
-      });
+      const payload = {
+        company_id: company.id,
+        name: form.name.trim(),
+        ic_no: form.icNo.trim(),
+        position: form.position.trim(),
+        project: form.project.trim(),
+        client: form.client.trim(),
+        start_date: form.startDate,
+        end_date: form.endDate,
+        status: form.status,
+      };
 
-      setMessage("Employee saved successfully.");
+      if (editingId) {
+        const { error } = await supabase
+          .from("employees")
+          .update(payload)
+          .eq("id", editingId)
+          .eq("company_id", company.id);
+
+        if (error) {
+          setMessage(error.message);
+          return;
+        }
+
+        setMessage("Employee updated successfully.");
+      } else {
+        const { error } = await supabase.from("employees").insert([payload]);
+
+        if (error) {
+          setMessage(error.message);
+          return;
+        }
+
+        setMessage("Employee saved successfully.");
+      }
+
+      setForm(emptyForm);
+      setEditingId(null);
       await loadEmployees();
     } catch (err) {
       console.error(err);
@@ -94,15 +143,15 @@ export default function EmployeesPage() {
               <div className="dashboard-welcome-copy">
                 <h1>Employee Database</h1>
                 <p>
-                  Add and manage your company’s real-time employee records in one
-                  structured workspace.
+                  Add, update, and manage employee records, including project,
+                  client, and employment period across the GJPBS network.
                 </p>
               </div>
             </div>
 
             <div className="dashboard-table-panel-v2">
               <div className="dashboard-panel-head-v2">
-                <h2>Add Employee</h2>
+                <h2>{editingId ? "Edit Employee" : "Add Employee"}</h2>
               </div>
 
               <form className="form-grid" onSubmit={handleSubmit}>
@@ -142,10 +191,29 @@ export default function EmployeesPage() {
                     <option>Active</option>
                     <option>Onboarding</option>
                     <option>Pending</option>
+                    <option>Inactive</option>
                   </select>
                 </div>
 
-                <div className="full-span">
+                <div>
+                  <label>Project</label>
+                  <input
+                    value={form.project}
+                    onChange={(e) => handleChange("project", e.target.value)}
+                    placeholder="e.g. Project Alpha"
+                  />
+                </div>
+
+                <div>
+                  <label>Client</label>
+                  <input
+                    value={form.client}
+                    onChange={(e) => handleChange("client", e.target.value)}
+                    placeholder="e.g. PETRONAS"
+                  />
+                </div>
+
+                <div>
                   <label>Start Date</label>
                   <input
                     type="date"
@@ -155,10 +223,39 @@ export default function EmployeesPage() {
                   />
                 </div>
 
-                <div className="full-span">
+                <div>
+                  <label>End Date</label>
+                  <input
+                    type="date"
+                    value={form.endDate}
+                    onChange={(e) => handleChange("endDate", e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div
+                  className="full-span"
+                  style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}
+                >
                   <button type="submit" disabled={loading}>
-                    {loading ? "Saving..." : "Save Employee"}
+                    {loading
+                      ? editingId
+                        ? "Updating..."
+                        : "Saving..."
+                      : editingId
+                      ? "Update Employee"
+                      : "Save Employee"}
                   </button>
+
+                  {editingId && (
+                    <button
+                      type="button"
+                      className="landing-secondary-btn"
+                      onClick={handleCancelEdit}
+                    >
+                      Cancel
+                    </button>
+                  )}
                 </div>
               </form>
 
@@ -177,8 +274,12 @@ export default function EmployeesPage() {
                       <th>Name</th>
                       <th>IC No.</th>
                       <th>Position</th>
+                      <th>Project</th>
+                      <th>Client</th>
                       <th>Start Date</th>
+                      <th>End Date</th>
                       <th>Status</th>
+                      <th>Action</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -188,13 +289,26 @@ export default function EmployeesPage() {
                           <td>{employee.name}</td>
                           <td>{employee.ic_no}</td>
                           <td>{employee.position}</td>
-                          <td>{employee.start_date}</td>
+                          <td>{employee.project || "-"}</td>
+                          <td>{employee.client || "-"}</td>
+                          <td>{employee.start_date || "-"}</td>
+                          <td>{employee.end_date || "-"}</td>
                           <td>{employee.status}</td>
+                          <td>
+                            <button
+                              type="button"
+                              className="landing-secondary-btn"
+                              onClick={() => handleEdit(employee)}
+                              style={{ padding: "8px 14px" }}
+                            >
+                              Edit
+                            </button>
+                          </td>
                         </tr>
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="5">No employee records found.</td>
+                        <td colSpan="9">No employee records found.</td>
                       </tr>
                     )}
                   </tbody>

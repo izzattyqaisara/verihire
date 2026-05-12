@@ -3,11 +3,17 @@ import Sidebar from "../components/Sidebar";
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "../lib/supabase";
 
+function rangesOverlap(aStart, aEnd, bStart, bEnd) {
+  if (!aStart || !aEnd || !bStart || !bEnd) return false;
+  return new Date(aStart) <= new Date(bEnd) && new Date(aEnd) >= new Date(bStart);
+}
+
 export default function DuplicateCheckPage() {
   const { company } = useAuth();
   const [form, setForm] = useState({
     icNo: "",
     startDate: "",
+    endDate: "",
   });
   const [results, setResults] = useState([]);
   const [message, setMessage] = useState("");
@@ -22,9 +28,14 @@ export default function DuplicateCheckPage() {
       return;
     }
 
+    if (new Date(form.startDate) > new Date(form.endDate)) {
+      setMessage("End Date must be later than or equal to Start Date.");
+      return;
+    }
+
     const { data, error } = await supabase
       .from("employees")
-      .select("id, company_id, name, ic_no, position, start_date, status")
+      .select("id, company_id, name, ic_no, position, project, client, start_date, end_date, status")
       .eq("ic_no", form.icNo)
       .neq("company_id", company.id);
 
@@ -33,10 +44,14 @@ export default function DuplicateCheckPage() {
       return;
     }
 
-    const filtered = (data || []).filter((record) => {
-      if (!record.start_date || !form.startDate) return false;
-      return new Date(record.start_date) <= new Date(form.startDate);
-    });
+    const filtered = (data || []).filter((record) =>
+      rangesOverlap(
+        form.startDate,
+        form.endDate,
+        record.start_date,
+        record.end_date
+      )
+    );
 
     const uniqueCompanyIds = [...new Set(filtered.map((item) => item.company_id))];
 
@@ -74,7 +89,7 @@ export default function DuplicateCheckPage() {
                 <h1>Duplication Check</h1>
                 <p>
                   Verify whether an employee IC already exists under another
-                  participating GJPBS company before the proposed start date.
+                  participating GJPBS company within the same employment range.
                 </p>
               </div>
             </div>
@@ -96,13 +111,25 @@ export default function DuplicateCheckPage() {
                   />
                 </div>
 
-                <div className="full-span">
+                <div>
                   <label>Proposed Start Date</label>
                   <input
                     type="date"
                     value={form.startDate}
                     onChange={(e) =>
                       setForm((prev) => ({ ...prev, startDate: e.target.value }))
+                    }
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label>Proposed End Date</label>
+                  <input
+                    type="date"
+                    value={form.endDate}
+                    onChange={(e) =>
+                      setForm((prev) => ({ ...prev, endDate: e.target.value }))
                     }
                     required
                   />
@@ -130,7 +157,10 @@ export default function DuplicateCheckPage() {
                         <th>Name</th>
                         <th>IC No.</th>
                         <th>Position</th>
+                        <th>Project</th>
+                        <th>Client</th>
                         <th>Start Date</th>
+                        <th>End Date</th>
                         <th>Status</th>
                       </tr>
                     </thead>
@@ -141,7 +171,10 @@ export default function DuplicateCheckPage() {
                           <td>{record.name}</td>
                           <td>{record.ic_no}</td>
                           <td>{record.position}</td>
-                          <td>{record.start_date}</td>
+                          <td>{record.project || "-"}</td>
+                          <td>{record.client || "-"}</td>
+                          <td>{record.start_date || "-"}</td>
+                          <td>{record.end_date || "-"}</td>
                           <td>{record.status}</td>
                         </tr>
                       ))}

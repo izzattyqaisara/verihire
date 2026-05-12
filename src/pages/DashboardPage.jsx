@@ -4,6 +4,11 @@ import Sidebar from "../components/Sidebar";
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "../lib/supabase";
 
+function rangesOverlap(aStart, aEnd, bStart, bEnd) {
+  if (!aStart || !aEnd || !bStart || !bEnd) return false;
+  return new Date(aStart) <= new Date(bEnd) && new Date(aEnd) >= new Date(bStart);
+}
+
 export default function DashboardPage() {
   const { company } = useAuth();
   const [employeeCount, setEmployeeCount] = useState(0);
@@ -14,11 +19,16 @@ export default function DashboardPage() {
     async function loadStats() {
       if (!company) return;
 
-      const { data: employees } = await supabase
+      const { data: employees, error } = await supabase
         .from("employees")
         .select("*")
         .eq("company_id", company.id)
         .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error(error);
+        return;
+      }
 
       const myEmployees = employees || [];
       setEmployeeCount(myEmployees.length);
@@ -27,15 +37,24 @@ export default function DashboardPage() {
       let duplicateHits = 0;
 
       for (const employee of myEmployees) {
-        const { data: matches } = await supabase
+        const { data: matches, error: matchError } = await supabase
           .from("employees")
           .select("*")
           .eq("ic_no", employee.ic_no)
           .neq("company_id", company.id);
 
-        if ((matches || []).length > 0) {
-          duplicateHits += 1;
-        }
+        if (matchError) continue;
+
+        const hasOverlap = (matches || []).some((match) =>
+          rangesOverlap(
+            employee.start_date,
+            employee.end_date,
+            match.start_date,
+            match.end_date
+          )
+        );
+
+        if (hasOverlap) duplicateHits += 1;
       }
 
       setDuplicateCount(duplicateHits);
@@ -55,8 +74,8 @@ export default function DashboardPage() {
               <div className="dashboard-welcome-copy">
                 <h1>Welcome back, {company?.name || "Company"}!</h1>
                 <p>
-                  Manage your active employee records, monitor duplicate IC matches,
-                  and keep workforce verification structured across the GJPBS network.
+                  Manage employee records, assigned projects, clients, and monitor
+                  duplicate IC matches across the GJPBS network.
                 </p>
 
                 <div className="dashboard-welcome-actions">
@@ -74,18 +93,18 @@ export default function DashboardPage() {
               <article className="dashboard-stat-card-v2 card-blue">
                 <h3>Total Employees</h3>
                 <div className="dashboard-stat-number">{employeeCount}</div>
-                <p>Current active employee records.</p>
+                <p>Current employee records in your company database.</p>
               </article>
 
               <article className="dashboard-stat-card-v2 card-green">
                 <h3>Flagged Duplicates</h3>
                 <div className="dashboard-stat-number">{duplicateCount}</div>
-                <p>Potential duplicate IC matches detected.</p>
+                <p>Same IC with overlapping employment range across GJPBS companies.</p>
               </article>
 
               <article className="dashboard-stat-card-v2 card-pink">
                 <h3>Employee Database</h3>
-                <p>Manage your current employee records in one place.</p>
+                <p>Manage employee records, project, client, and employment dates.</p>
                 <Link to="/employees" className="dashboard-card-link">
                   Open Database
                 </Link>
@@ -107,7 +126,10 @@ export default function DashboardPage() {
                       <th>Name</th>
                       <th>IC No.</th>
                       <th>Position</th>
+                      <th>Project</th>
+                      <th>Client</th>
                       <th>Start Date</th>
+                      <th>End Date</th>
                       <th>Status</th>
                     </tr>
                   </thead>
@@ -118,13 +140,16 @@ export default function DashboardPage() {
                           <td>{employee.name}</td>
                           <td>{employee.ic_no}</td>
                           <td>{employee.position}</td>
-                          <td>{employee.start_date}</td>
-                          <td>{employee.status}</td>
+                          <td>{employee.project || "-"}</td>
+                          <td>{employee.client || "-"}</td>
+                          <td>{employee.start_date || "-"}</td>
+                          <td>{employee.end_date || "-"}</td>
+                          <td>{employee.status || "-"}</td>
                         </tr>
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="5">No employee records found.</td>
+                        <td colSpan="8">No employee records found.</td>
                       </tr>
                     )}
                   </tbody>
