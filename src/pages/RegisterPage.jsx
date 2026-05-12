@@ -43,7 +43,7 @@ export default function RegisterPage() {
 
       if (!approvedCompany) {
         setMessage(
-          "This email is not in the approved PGABS company list. Please contact the administrator."
+          "This email is not in the approved GJPBS company list. Please contact the administrator."
         );
         return;
       }

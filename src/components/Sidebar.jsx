@@ -24,7 +24,7 @@ export default function Sidebar() {
         <VeriHireLogo compact />
 
         <div className="sidebar-company-block">
-          <p className="sidebar-company-label">PGABS Company</p>
+          <p className="sidebar-company-label">GJPBS Company</p>
           <p className="sidebar-company-name">{company?.name || "Company"}</p>
         </div>
 

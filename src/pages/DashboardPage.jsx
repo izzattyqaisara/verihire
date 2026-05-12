@@ -56,7 +56,7 @@ export default function DashboardPage() {
                 <h1>Welcome back, {company?.name || "Company"}!</h1>
                 <p>
                   Manage your active employee records, monitor duplicate IC matches,
-                  and keep workforce verification structured across the PGABS network.
+                  and keep workforce verification structured across the GJPBS network.
                 </p>
 
                 <div className="dashboard-welcome-actions">

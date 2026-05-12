@@ -33,7 +33,7 @@ export default function LandingPage() {
 
             <p className="landing-hero-description">
               A private workforce verification platform for approved companies under
-              PGABS to manage employee records and detect overlapping employment
+              GJPBS to manage employee records and detect overlapping employment
               across participating companies.
             </p>
 

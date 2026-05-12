@@ -43,7 +43,7 @@ export default function LoginPage() {
       if (companyError || !company) {
         await supabase.auth.signOut();
         setMessage(
-          "This account is not linked to an approved PGABS company. Please contact the administrator."
+          "This account is not linked to an approved GJPBS company. Please contact the administrator."
         );
         return;
       }

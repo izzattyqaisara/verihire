@@ -74,7 +74,7 @@ export default function DuplicateCheckPage() {
                 <h1>Duplication Check</h1>
                 <p>
                   Verify whether an employee IC already exists under another
-                  participating PGABS company before the proposed start date.
+                  participating GJPBS company before the proposed start date.
                 </p>
               </div>
             </div>
