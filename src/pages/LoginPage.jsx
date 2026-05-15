@@ -22,29 +22,13 @@ export default function LoginPage() {
     setMessage("");
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email: form.email.trim().toLowerCase(),
         password: form.password,
       });
 
       if (error) {
         setMessage(error.message);
-        return;
-      }
-
-      const userId = data.user?.id;
-
-      const { data: company, error: companyError } = await supabase
-        .from("companies")
-        .select("*")
-        .eq("owner_user_id", userId)
-        .maybeSingle();
-
-      if (companyError || !company) {
-        await supabase.auth.signOut();
-        setMessage(
-          "This account is not linked to an approved GJPBS company. Please contact the administrator."
-        );
         return;
       }
 
@@ -58,99 +42,63 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="auth-dashboard-page">
-      <div className="auth-dashboard-shell">
-        <header className="auth-dashboard-topbar">
+    <div className="auth-shell">
+      <div className="auth-decoration-panel">
+        <div className="auth-decoration-inner">
           <VeriHireLogo compact />
-          <Link to="/" className="landing-link-btn">
-            Back to Home
-          </Link>
-        </header>
+          <h2>Welcome back</h2>
+          <p>
+            Sign in to continue managing employee records and duplication checks
+            for your company.
+          </p>
+        </div>
+      </div>
 
-        <section className="auth-dashboard-hero">
-          <div className="auth-dashboard-copy">
-            <p className="page-kicker">GJPBS Private Portal</p>
+      <div className="auth-page">
+        <div className="auth-card styled-auth-card">
+          <div className="auth-logo-row">
+            <VeriHireLogo compact />
+          </div>
+
+          <div className="auth-copy-block">
             <h1>Login</h1>
-            <p className="page-lead">
-              Sign in to access your company workspace, manage employee records,
-              and run duplication checks across participating GJPBS companies.
-            </p>
-          </div>
-        </section>
-
-        <section className="auth-dashboard-grid">
-          <div className="dashboard-panel auth-info-panel">
-            <div className="panel-header">
-              <h2>Access Information</h2>
-            </div>
-
-            <div className="auth-feature-list">
-              <div className="auth-feature-item">
-                <span className="auth-feature-icon blue">✓</span>
-                <div>
-                  <strong>Approved company access only</strong>
-                  <p>Only registered GJPBS companies can sign in.</p>
-                </div>
-              </div>
-
-              <div className="auth-feature-item">
-                <span className="auth-feature-icon green">!</span>
-                <div>
-                  <strong>Cross-company duplicate checks</strong>
-                  <p>Identify employee IC duplication across participating companies.</p>
-                </div>
-              </div>
-
-              <div className="auth-feature-item">
-                <span className="auth-feature-icon lilac">PG</span>
-                <div>
-                  <strong>Private internal platform</strong>
-                  <p>This system is intended for GJPBS network companies only.</p>
-                </div>
-              </div>
-            </div>
+            <p>Sign in to your company workspace.</p>
           </div>
 
-          <div className="dashboard-panel auth-form-panel-card">
-            <div className="panel-header">
-              <h2>Sign In</h2>
+          <form className="auth-form" onSubmit={handleSubmit}>
+            <div>
+              <label>Email</label>
+              <input
+                type="email"
+                value={form.email}
+                onChange={(e) => handleChange("email", e.target.value)}
+                placeholder="company@email.com"
+                required
+              />
             </div>
 
-            <form className="auth-form" onSubmit={handleSubmit}>
-              <div>
-                <label>Email</label>
-                <input
-                  type="email"
-                  value={form.email}
-                  onChange={(e) => handleChange("email", e.target.value)}
-                  placeholder="company@email.com"
-                  required
-                />
-              </div>
+            <div>
+              <label>Password</label>
+              <input
+                type="password"
+                value={form.password}
+                onChange={(e) => handleChange("password", e.target.value)}
+                placeholder="Enter password"
+                required
+              />
+            </div>
 
-              <div>
-                <label>Password</label>
-                <input
-                  type="password"
-                  value={form.password}
-                  onChange={(e) => handleChange("password", e.target.value)}
-                  placeholder="Enter password"
-                  required
-                />
-              </div>
+            <button type="submit" disabled={loading}>
+              {loading ? "Logging in..." : "Login"}
+            </button>
+          </form>
 
-              <button type="submit" disabled={loading}>
-                {loading ? "Logging in..." : "Login"}
-              </button>
-            </form>
+          {message && <p className="auth-message">{message}</p>}
 
-            {message && <p className="auth-message">{message}</p>}
-
-            <p className="auth-footer">
-              Don’t have an account? <Link to="/register">Register</Link>
-            </p>
-          </div>
-        </section>
+          <p className="auth-footer">
+            Don’t have an account? <Link to="/register">Register</Link>
+          </p>
+        </div>
       </div>
     </div>
   );

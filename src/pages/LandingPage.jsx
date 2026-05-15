@@ -32,9 +32,8 @@ export default function LandingPage() {
             </h1>
 
             <p className="landing-hero-description">
-              A private workforce verification platform for approved companies under
-              GJPBS to manage employee records and detect overlapping employment
-              across participating companies.
+              A workforce verification platform to manage employee records and
+              detect overlapping employment across companies.
             </p>
 
             <div className="landing-hero-actions">
@@ -50,7 +49,7 @@ export default function LandingPage() {
           <div className="landing-hero-visual">
             <div className="hero-ui-board">
               <div className="hero-floating-badge hero-floating-badge-top">
-                GJPBS Private Portal
+                VeriHire Portal
               </div>
 
               <div className="hero-ui-main-card">
@@ -60,7 +59,7 @@ export default function LandingPage() {
                     <span />
                     <span />
                   </div>
-                  <div className="hero-ui-chip">VeriHire Dashboard</div>
+                  <div className="hero-ui-chip">Dashboard</div>
                 </div>
 
                 <div className="hero-ui-summary-grid">
@@ -106,8 +105,8 @@ export default function LandingPage() {
               <div className="hero-side-stack">
                 <div className="hero-mini-card trial-card">
                   <small>Access Type</small>
-                  <strong>Approved Company</strong>
-                  <span>Restricted to GJPBS network</span>
+                  <strong>Company Account</strong>
+                  <span>Register and login normally</span>
                 </div>
 
                 <div className="hero-mini-card employee-card">
@@ -118,7 +117,7 @@ export default function LandingPage() {
               </div>
 
               <div className="hero-floating-badge hero-floating-badge-bottom">
-                Internal Use Only
+                Workforce Verification
               </div>
             </div>
           </div>
@@ -127,10 +126,10 @@ export default function LandingPage() {
         <section className="landing-features" id="features">
           <div className="landing-section-heading">
             <span className="landing-section-kicker">Features</span>
-            <h2>Everything participating companies need</h2>
+            <h2>Everything companies need</h2>
             <p>
-              Built for approved GJPBS group companies that need a central system
-              for verification and employee record management.
+              Built for companies that need a central system for verification and
+              employee record management.
             </p>
           </div>
 
@@ -139,8 +138,8 @@ export default function LandingPage() {
               <div className="feature-icon-circle blue">✓</div>
               <h3>Cross-company verification</h3>
               <p>
-                Run IC-based duplicate checks across participating companies and
-                identify overlapping employment periods.
+                Run IC-based duplicate checks across companies and identify
+                overlapping employment periods.
               </p>
             </article>
 
@@ -157,17 +156,17 @@ export default function LandingPage() {
               <div className="feature-icon-circle pink">+</div>
               <h3>Employee database</h3>
               <p>
-                Store employee records in one organised place with company-level
-                access and clearer visibility.
+                Store employee records in one organised place with clearer
+                visibility across projects and clients.
               </p>
             </article>
 
             <article className="landing-feature-card soft-lilac">
-              <div className="feature-icon-circle lilac">PG</div>
-              <h3>Private GJPBS access</h3>
+              <div className="feature-icon-circle lilac">VH</div>
+              <h3>Company access</h3>
               <p>
-                Access is restricted to approved companies under the GJPBS group
-                network only.
+                Companies can register and access their own workspace using normal
+                login and registration flow.
               </p>
             </article>
           </div>
@@ -176,15 +175,14 @@ export default function LandingPage() {
         <section className="landing-cta-strip" id="access">
           <div className="landing-cta-strip-inner">
             <p>
-              Access is restricted to approved GJPBS companies. Register using your
-              approved company email.
+              Create your company account and start managing employee verification
+              in one platform.
             </p>
             <Link to="/register" className="landing-primary-btn">
               Register
             </Link>
           </div>
         </section>
-        <footer className="app-footer-note">developed by qise.studio</footer>
       </main>
     </div>
   );

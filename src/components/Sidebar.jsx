@@ -24,7 +24,7 @@ export default function Sidebar() {
         <VeriHireLogo compact />
 
         <div className="sidebar-company-block">
-          <p className="sidebar-company-label">GJPBS Company</p>
+          <p className="sidebar-company-label">Company</p>
           <p className="sidebar-company-name">{company?.name || "Company"}</p>
         </div>
 
@@ -44,10 +44,10 @@ export default function Sidebar() {
       </div>
 
       <div className="sidebar-footer-card">
-        <p className="sidebar-footer-title">GJPBS Verification Portal</p>
+        <p className="sidebar-footer-title">Verification Workspace</p>
         <p className="sidebar-footer-text">
-          Private access for approved GJPBS group companies to manage records and
-          run duplication checks.
+          Manage employee records, project assignments, clients, and duplication
+          checks in one place.
         </p>
       </div>
 

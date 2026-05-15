@@ -6,6 +6,7 @@ import VeriHireLogo from "../components/VeriHireLogo";
 export default function RegisterPage() {
   const navigate = useNavigate();
   const [form, setForm] = useState({
+    companyName: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -23,35 +24,16 @@ export default function RegisterPage() {
     setMessage("");
 
     try {
-      if (form.password !== form.confirmPassword) {
-        setMessage("Passwords do not match.");
-        return;
-      }
-
+      const companyName = form.companyName.trim();
       const email = form.email.trim().toLowerCase();
 
-      const { data: approvedCompany, error: companyLookupError } = await supabase
-        .from("companies")
-        .select("*")
-        .eq("email", email)
-        .maybeSingle();
-
-      if (companyLookupError) {
-        setMessage(companyLookupError.message);
+      if (!companyName) {
+        setMessage("Company name is required.");
         return;
       }
 
-      if (!approvedCompany) {
-        setMessage(
-          "This email is not in the approved GJPBS company list. Please contact the administrator."
-        );
-        return;
-      }
-
-      if (approvedCompany.owner_user_id) {
-        setMessage(
-          "This company account has already been registered. Please login or contact the administrator."
-        );
+      if (form.password !== form.confirmPassword) {
+        setMessage("Passwords do not match.");
         return;
       }
 
@@ -71,22 +53,23 @@ export default function RegisterPage() {
         return;
       }
 
-      const { error: updateError } = await supabase
-        .from("companies")
-        .update({
+      const { error: companyError } = await supabase.from("companies").insert([
+        {
+          name: companyName,
+          email,
           owner_user_id: userId,
-        })
-        .eq("id", approvedCompany.id);
+        },
+      ]);
 
-      if (updateError) {
-        setMessage(updateError.message);
+      if (companyError) {
+        setMessage(companyError.message);
         return;
       }
 
       setMessage("Registration successful. Redirecting to login...");
       setTimeout(() => navigate("/login"), 1200);
     } catch (err) {
-      console.error(err);
+      console.error("register unexpected error:", err);
       setMessage("Something went wrong during registration.");
     } finally {
       setLoading(false);
@@ -94,110 +77,85 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="auth-dashboard-page">
-      <div className="auth-dashboard-shell">
-        <header className="auth-dashboard-topbar">
+    <div className="auth-shell">
+      <div className="auth-decoration-panel">
+        <div className="auth-decoration-inner">
           <VeriHireLogo compact />
-          <Link to="/" className="landing-link-btn">
-            Back to Home
-          </Link>
-        </header>
+          <h2>Register your account</h2>
+          <p>
+            Create your company account to access the employee verification
+            platform.
+          </p>
+        </div>
+      </div>
 
-        <section className="auth-dashboard-hero">
-          <div className="auth-dashboard-copy">
-            <p className="page-kicker">GJPBS Private Portal</p>
-            <h1>Register</h1>
-            <p className="page-lead">
-              Register using your approved GJPBS company email to access the private
-              employee verification platform.
-            </p>
-          </div>
-        </section>
-
-        <section className="auth-dashboard-grid">
-          <div className="dashboard-panel auth-info-panel">
-            <div className="panel-header">
-              <h2>Registration Rules</h2>
-            </div>
-
-            <div className="auth-feature-list">
-              <div className="auth-feature-item">
-                <span className="auth-feature-icon blue">✓</span>
-                <div>
-                  <strong>Approved company email required</strong>
-                  <p>Your email must already exist in the GJPBS company list.</p>
-                </div>
-              </div>
-
-              <div className="auth-feature-item">
-                <span className="auth-feature-icon pink">+</span>
-                <div>
-                  <strong>One account per approved company</strong>
-                  <p>Each company registration is linked to its pre-approved record.</p>
-                </div>
-              </div>
-
-              <div className="auth-feature-item">
-                <span className="auth-feature-icon lilac">PG</span>
-                <div>
-                  <strong>Private GJPBS access</strong>
-                  <p>This is not open public registration.</p>
-                </div>
-              </div>
-            </div>
+      <div className="auth-page">
+        <div className="auth-card styled-auth-card">
+          <div className="auth-logo-row">
+            <VeriHireLogo compact />
           </div>
 
-          <div className="dashboard-panel auth-form-panel-card">
-            <div className="panel-header">
-              <h2>Create Account</h2>
+          <div className="auth-copy-block">
+            <h1>Create Account</h1>
+            <p>Register your company and login as usual.</p>
+          </div>
+
+          <form className="auth-form" onSubmit={handleSubmit}>
+            <div>
+              <label>Company Name</label>
+              <input
+                type="text"
+                value={form.companyName}
+                onChange={(e) => handleChange("companyName", e.target.value)}
+                placeholder="Enter company name"
+                required
+              />
             </div>
 
-            <form className="auth-form" onSubmit={handleSubmit}>
-              <div>
-                <label>Approved Company Email</label>
-                <input
-                  type="email"
-                  value={form.email}
-                  onChange={(e) => handleChange("email", e.target.value)}
-                  placeholder="company@email.com"
-                  required
-                />
-              </div>
+            <div>
+              <label>Email</label>
+              <input
+                type="email"
+                value={form.email}
+                onChange={(e) => handleChange("email", e.target.value)}
+                placeholder="company@email.com"
+                required
+              />
+            </div>
 
-              <div>
-                <label>Password</label>
-                <input
-                  type="password"
-                  value={form.password}
-                  onChange={(e) => handleChange("password", e.target.value)}
-                  placeholder="Create password"
-                  required
-                />
-              </div>
+            <div>
+              <label>Password</label>
+              <input
+                type="password"
+                value={form.password}
+                onChange={(e) => handleChange("password", e.target.value)}
+                placeholder="Create password"
+                required
+              />
+            </div>
 
-              <div>
-                <label>Confirm Password</label>
-                <input
-                  type="password"
-                  value={form.confirmPassword}
-                  onChange={(e) => handleChange("confirmPassword", e.target.value)}
-                  placeholder="Confirm password"
-                  required
-                />
-              </div>
+            <div>
+              <label>Confirm Password</label>
+              <input
+                type="password"
+                value={form.confirmPassword}
+                onChange={(e) => handleChange("confirmPassword", e.target.value)}
+                placeholder="Confirm password"
+                required
+              />
+            </div>
 
-              <button type="submit" disabled={loading}>
-                {loading ? "Registering..." : "Register"}
-              </button>
-            </form>
+            <button type="submit" disabled={loading}>
+              {loading ? "Registering..." : "Register"}
+            </button>
+          </form>
 
-            {message && <p className="auth-message">{message}</p>}
+          {message && <p className="auth-message">{message}</p>}
 
-            <p className="auth-footer">
-              Already have an account? <Link to="/login">Login</Link>
-            </p>
-          </div>
-        </section>
+          <p className="auth-footer">
+            Already have an account? <Link to="/login">Login</Link>
+          </p>
+        </div>
       </div>
     </div>
   );
