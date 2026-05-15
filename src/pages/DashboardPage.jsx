@@ -4,6 +4,10 @@ import Sidebar from "../components/Sidebar";
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "../lib/supabase";
 
+function normalizeIc(value) {
+  return String(value || "").replace(/\D/g, "");
+}
+
 function rangesOverlap(aStart, aEnd, bStart, bEnd) {
   if (!aStart || !aEnd || !bStart || !bEnd) return false;
   return new Date(aStart) <= new Date(bEnd) && new Date(aEnd) >= new Date(bStart);
@@ -17,7 +21,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     async function loadStats() {
-      if (!company) return;
+      if (!company?.id) return;
 
       const { data: employees, error } = await supabase
         .from("employees")
@@ -26,7 +30,7 @@ export default function DashboardPage() {
         .order("created_at", { ascending: false });
 
       if (error) {
-        console.error(error);
+        console.error("Failed loading employees:", error);
         return;
       }
 
@@ -37,22 +41,30 @@ export default function DashboardPage() {
       let duplicateHits = 0;
 
       for (const employee of myEmployees) {
+        const cleanedIc = normalizeIc(employee.ic_no);
+        if (!cleanedIc || !employee.start_date || !employee.end_date) continue;
+
         const { data: matches, error: matchError } = await supabase
           .from("employees")
           .select("*")
-          .eq("ic_no", employee.ic_no)
           .neq("company_id", company.id);
 
-        if (matchError) continue;
+        if (matchError) {
+          console.error("Failed loading matches:", matchError);
+          continue;
+        }
 
-        const hasOverlap = (matches || []).some((match) =>
-          rangesOverlap(
-            employee.start_date,
-            employee.end_date,
-            match.start_date,
-            match.end_date
-          )
-        );
+        const hasOverlap = (matches || []).some((match) => {
+          return (
+            normalizeIc(match.ic_no) === cleanedIc &&
+            rangesOverlap(
+              employee.start_date,
+              employee.end_date,
+              match.start_date,
+              match.end_date
+            )
+          );
+        });
 
         if (hasOverlap) duplicateHits += 1;
       }
@@ -75,7 +87,7 @@ export default function DashboardPage() {
                 <h1>Welcome back, {company?.name || "Company"}!</h1>
                 <p>
                   Manage employee records, assigned projects, clients, and monitor
-                  duplicate IC matches across the GJPBS network.
+                  duplicate IC matches across companies.
                 </p>
 
                 <div className="dashboard-welcome-actions">
@@ -99,7 +111,7 @@ export default function DashboardPage() {
               <article className="dashboard-stat-card-v2 card-green">
                 <h3>Flagged Duplicates</h3>
                 <div className="dashboard-stat-number">{duplicateCount}</div>
-                <p>Same IC with overlapping employment range across GJPBS companies.</p>
+                <p>Same IC with overlapping employment range across companies.</p>
               </article>
 
               <article className="dashboard-stat-card-v2 card-pink">
