@@ -8,6 +8,10 @@ function rangesOverlap(aStart, aEnd, bStart, bEnd) {
   return new Date(aStart) <= new Date(bEnd) && new Date(aEnd) >= new Date(bStart);
 }
 
+function normalizeIc(value) {
+  return value.replace(/\D/g, "");
+}
+
 export default function DuplicateCheckPage() {
   const { company } = useAuth();
   const [form, setForm] = useState({
@@ -28,6 +32,13 @@ export default function DuplicateCheckPage() {
       return;
     }
 
+    const cleanedIc = normalizeIc(form.icNo);
+
+    if (!cleanedIc) {
+      setMessage("IC Number is required.");
+      return;
+    }
+
     if (new Date(form.startDate) > new Date(form.endDate)) {
       setMessage("End Date must be later than or equal to Start Date.");
       return;
@@ -36,7 +47,7 @@ export default function DuplicateCheckPage() {
     const { data, error } = await supabase
       .from("employees")
       .select("id, company_id, name, ic_no, position, project, client, start_date, end_date, status")
-      .eq("ic_no", form.icNo)
+      .eq("ic_no", cleanedIc)
       .neq("company_id", company.id);
 
     if (error) {
@@ -89,7 +100,7 @@ export default function DuplicateCheckPage() {
                 <h1>Duplication Check</h1>
                 <p>
                   Verify whether an employee IC already exists under another
-                  participating GJPBS company within the same employment range.
+                  company within the same employment range.
                 </p>
               </div>
             </div>
@@ -107,6 +118,7 @@ export default function DuplicateCheckPage() {
                     onChange={(e) =>
                       setForm((prev) => ({ ...prev, icNo: e.target.value }))
                     }
+                    placeholder="e.g. 000908-07-65"
                     required
                   />
                 </div>

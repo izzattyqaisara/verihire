@@ -14,6 +14,10 @@ const emptyForm = {
   status: "Active",
 };
 
+function normalizeIc(value) {
+  return value.replace(/\D/g, "");
+}
+
 export default function EmployeesPage() {
   const { company } = useAuth();
   const [employees, setEmployees] = useState([]);
@@ -80,6 +84,13 @@ export default function EmployeesPage() {
         return;
       }
 
+      const cleanedIc = normalizeIc(form.icNo);
+
+      if (!cleanedIc) {
+        setMessage("IC No. is required.");
+        return;
+      }
+
       if (new Date(form.startDate) > new Date(form.endDate)) {
         setMessage("End Date must be later than or equal to Start Date.");
         return;
@@ -88,7 +99,7 @@ export default function EmployeesPage() {
       const payload = {
         company_id: company.id,
         name: form.name.trim(),
-        ic_no: form.icNo.trim(),
+        ic_no: cleanedIc,
         position: form.position.trim(),
         project: form.project.trim(),
         client: form.client.trim(),
@@ -144,7 +155,7 @@ export default function EmployeesPage() {
                 <h1>Employee Database</h1>
                 <p>
                   Add, update, and manage employee records, including project,
-                  client, and employment period across the GJPBS network.
+                  client, and employment period.
                 </p>
               </div>
             </div>
@@ -169,6 +180,7 @@ export default function EmployeesPage() {
                   <input
                     value={form.icNo}
                     onChange={(e) => handleChange("icNo", e.target.value)}
+                    placeholder="e.g. 000908-07-65"
                     required
                   />
                 </div>
@@ -200,7 +212,6 @@ export default function EmployeesPage() {
                   <input
                     value={form.project}
                     onChange={(e) => handleChange("project", e.target.value)}
-                    placeholder="e.g. Project Alpha"
                   />
                 </div>
 
@@ -209,7 +220,6 @@ export default function EmployeesPage() {
                   <input
                     value={form.client}
                     onChange={(e) => handleChange("client", e.target.value)}
-                    placeholder="e.g. PETRONAS"
                   />
                 </div>
 
@@ -233,10 +243,7 @@ export default function EmployeesPage() {
                   />
                 </div>
 
-                <div
-                  className="full-span"
-                  style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}
-                >
+                <div className="full-span" style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
                   <button type="submit" disabled={loading}>
                     {loading
                       ? editingId
